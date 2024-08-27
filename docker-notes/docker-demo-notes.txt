@@ -1,0 +1,61 @@
+===================================================
+Docker running.
+Install docker
+Create spring boot appln
+create docker file with name Dockerfile inside target folder
+create docker image using docker command
+run docker image
+=============================================
+docker commands : 
+cd D:\poc-client-interview\springboot-docker-demo\springboot-docker-demo\target
+docker build -t springboot-docker-demo:latest .
+docker images
+
+docker run -p 8081:8080 springboot-docker-demo
+here the docker port no is 8081 and the springboot demo is running this port only. 
+in 8080 port tomcat is running.
+8081 : port of docker container.
+==============================================
+Error : 
+ERROR: failed to solve: failed to compute cache key: failed to calculate checksum of ref 57e82304-f006-4681-834e-af4110a9e0dd::wcz2wub4u4y0xt7w5p9bvl5jf: "/target/springboot-docker-demo-0.0.1-SNAPSHOT.jar": not found
+
+failed to solve: failed to compute cache key:
+Reason : Not able to find the docker jar(springboot-docker-demo-0.0.1-SNAPSHOT.jar)
+I gave the working directory path, till target folder
+so it couldn't find the springboot-docker-demo-0.0.1-SNAPSHOT.jar inside targetfolder earlier congired docker file.
+So I removed target  from the path.
+befor  the ADD was like this  
+ADD /target/springboot-docker-demo-0.0.1-SNAPSHOT.jar springboot-docker-demo.jar
+
+Now I chnaged to 
+ADD springboot-docker-demo-0.0.1-SNAPSHOT.jar springboot-docker-demo.jar
+
+in order to resolve the error.
+===================================================================
+Error 2 : 
+D:\poc-client-interview\springboot-docker-demo\springboot-docker-demo\target>docker run -p 8081:8080 springboot-docker-demo
+Error: LinkageError occurred while loading main class org.springframework.boot.loader.launch.JarLauncher
+        java.lang.UnsupportedClassVersionError: org/springframework/boot/loader/launch/JarLauncher has been compiled by a more recent version of the Java Runtime (class file version 61.0), this version of the Java Runtime only recognizes class file versions up to 55.0
+		
+		I used java version in my spring boot appln as 17.
+		But in docker I have used jdk 11 version.
+		FROM openjdk:11
+		
+		After changing this version to jdk 17 it worked.Error got resolved
+=======================================================================
+
+# define base docker image
+FROM openjdk:11
+LABEL maintainer="javaguides.net"
+ADD target/springboot-docker-demo-0.0.1-SNAPSHOT.jar springboot-docker-demo.jar
+ENTRYPOINT ["java", "-jar", "springboot-docker-demo.jar"]
+===============================================
+New docker file after changing java version :
+working version
+------------------------------------------
+# define base docker image
+FROM openjdk:17
+LABEL maintainer="springbootdocker.example"
+ADD springboot-docker-demo-0.0.1-SNAPSHOT.jar springboot-docker-demo.jar
+ENTRYPOINT ["java", "-jar", "springboot-docker-demo.jar"]
+===================================================================================
